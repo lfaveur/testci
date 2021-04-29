@@ -9,12 +9,6 @@ jobs:
       # Specify the version you desire here
       - image: jakzal/phpqa:php7.4
 
-      before_script:
-        - composer install
-
-      cache:
-        paths:
-          - vendor/
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
