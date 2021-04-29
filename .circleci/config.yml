@@ -1,60 +1,34 @@
-# PHP CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-php/ for more details
-#
 version: 2
 jobs:
   build:
     docker:
       # Specify the version you desire here
-      - image: jakzal/phpqa:php7.4
-
-      before_script:
-        - composer install
-
-      cache:
-        paths:
-          - vendor/
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # Using the RAM variation mitigates I/O contention
-      # for database intensive operations.
-      # - image: circleci/mysql:5.7-ram
-      #
-      # - image: redis:2.8.19
+      - image: circleci/php:7.4-node-browsers
 
     steps:
-      - SecurityChecker
-      - CodingStandards
-      - UnitTests
+      - checkout
 
-    security-checker:
-      stage: SecurityChecker
-      script:
-        - local-php-security-checker  --path=./composer.lock
-      allow_failure: false
+      - run: sudo apt update # PHP CircleCI 2.0 Configuration File# PHP CircleCI 2.0 Configuration File sudo apt install zlib1g-dev libsqlite3-dev
+      - run: sudo docker-php-ext-install zip
 
-    phpcs:
-      stage: CodingStandards
-      script:
-        - phpcs -v --standard=PSR12 --ignore=./src/Kernel.php ./src
-      allow_failure: false
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            # "composer.lock" can be used if it is committed to the repo
+            - v1-dependencies-{{ checksum "composer.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
 
-    phpstan:
-      stage: CodingStandards
-      script:
-        - phpstan analyse ./src
-      allow_failure: false
+      - run:
+          name: "Install Dependencies"
+          command: composer install -n --prefer-dist
 
-    twig-lint:
-      stage: CodingStandards
-      script:
-        - twig-lint lint ./templates
-      allow_failure: false
+      - save_cache:
+          key: v1-dependencies-{{ checksum "composer.json" }}
+          paths:
+            - ./vendor
 
-    phpunit:
-      stage: UnitTests
-      script:
-        - php bin/phpunit
-      allow_failure: false
+      # run tests with phpunit
+      - run:
+          name: "Run tests"
+          command: composer test
