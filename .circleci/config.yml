@@ -1,21 +1,38 @@
 version: 2
-jobs:
-  build:
-    docker:
-      # Specify the version you desire here
-      - image: jakzal/phpqa:php7.4
+image: jakzal/phpqa:php7.4
 
-    steps:
-      - uses: actions/checkout@master
-      - name: PHPStan
-          uses: docker://jakzal/phpqa:php7.4-alpine
-          with:
-            args: phpstan analyze src/ -l 1
-      - name: PHP-CS-Fixer
-          uses: docker://jakzal/phpqa:php7.4-alpine
-          with:
-            args: php-cs-fixer --dry-run --allow-risky=yes --no-interaction --ansi fix
-      - name: Deptrac
-          uses: docker://jakzal/phpqa:php7.4-alpine
-          with:
-            args: deptrac --no-interaction --ansi --formatter-graphviz-display=0
+before_script:
+  - composer install
+
+cache:
+  paths:
+    - vendor/
+
+stages:
+  - SecurityChecker
+  - CodingStandards
+  - UnitTests
+
+security-checker:
+  stage: SecurityChecker
+  script:
+    - local-php-security-checker  --path=./composer.lock
+  allow_failure: false
+
+phpcs:
+  stage: CodingStandards
+  script:
+    - phpcs -v --standard=PSR12 --ignore=./src/Kernel.php ./src
+  allow_failure: false
+
+phpstan:
+  stage: CodingStandards
+  script:
+    - phpstan analyse ./src
+  allow_failure: false
+
+twig-lint:
+  stage: CodingStandards
+  script:
+    - twig-lint lint ./templates
+  allow_failure: false
