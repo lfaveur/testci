@@ -33,7 +33,6 @@ workflows:
   version: 2
   notify_deploy:
     jobs:
-      - build:
-        branches:
-          only:
-            - master
+      - build
+        only
+          - master
