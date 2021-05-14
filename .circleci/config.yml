@@ -34,6 +34,6 @@ workflows:
   notify_deploy:
     jobs:
       - build:
-          branches:
-            only:
-              - master
+        branches:
+          only:
+            - master
