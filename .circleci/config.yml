@@ -33,6 +33,7 @@ workflows:
   version: 2
   notify_deploy:
     jobs:
-      - build
-        only
-          - master
+      - build:
+          filters: # required since `test` has tag filters AND requires `build`
+            tags:
+              only: master
