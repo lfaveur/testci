@@ -34,6 +34,6 @@ workflows:
   notify_deploy:
     jobs:
       - build:
-          filters: # required since `test` has tag filters AND requires `build`
-            tags:
-              only: master
+        filters: # required since `test` has tag filters AND requires `build`
+          tags:
+            only: master
