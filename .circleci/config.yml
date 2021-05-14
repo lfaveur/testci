@@ -27,9 +27,13 @@ jobs:
       - run: cp .env .env.local
       - run: yarn install
       - run: php -d memory_limit=-1 vendor/bin/phpstan analyse src --level max
+      - run: vendor/bin/php-cs-fixer --dry-run fix src -v --allow-risky=yes
 
 workflows:
   version: 2
   notify_deploy:
     jobs:
       - build
+        filters:
+          branches:
+            only: master
